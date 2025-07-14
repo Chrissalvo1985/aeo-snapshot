@@ -32,7 +32,7 @@ const loadingSteps = [
   {
     icon: Brain,
     title: 'Simulando IA',
-    description: 'Obteniendo respuestas de ChatGPT',
+    description: 'Obteniendo respuestas de múltiples modelos de IA',
     color: 'text-purple-600',
     bgColor: 'bg-purple-50 dark:bg-purple-900/20',
     accentColor: 'from-purple-500 to-purple-600'
