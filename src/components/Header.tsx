@@ -197,7 +197,7 @@ export default function Header({ onShowDashboard, onShowHistory, onShowHome, onS
                 className="w-full flex items-center space-x-2 px-4 py-2 rounded-lg transition-colors text-gray-600 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-gray-100 dark:hover:bg-gray-800"
               >
                 <Info className="h-4 w-4" />
-                <span>Información</span>
+                <span>Info</span>
               </button>
             </nav>
           </div>
