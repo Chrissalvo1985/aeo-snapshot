@@ -1,0 +1,26 @@
+# Archivos de desarrollo
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Archivos de ESLint que pueden causar problemas
+.eslintrc.js
+.eslintrc.json
+.eslintrc.yaml
+.eslintrc.yml
+eslint.config.js
+eslint.config.mjs
+
+# Archivos temporales
+*.log
+*.tmp
+*.cache
+
+# Archivos de testing
+test/
+tests/
+*.test.js
+*.test.ts
+*.spec.js
+*.spec.ts 
