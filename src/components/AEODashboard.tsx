@@ -116,6 +116,10 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
   const mentionedQuestions = questionsForProvider.filter(q => q.mentioned);
   const notMentionedQuestions = questionsForProvider.filter(q => !q.mentioned);
 
+  // Datos base para el overview (independientes del proveedor seleccionado)
+  const overviewMentionedQuestions = analysis.questions.filter(q => q.mentioned);
+  const overviewNotMentionedQuestions = analysis.questions.filter(q => !q.mentioned);
+
   // Funciones de paginación
   const resetPagination = () => {
     setCurrentPage(1);
@@ -322,14 +326,14 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
                   <span className="text-sm text-muted-foreground">Mencionado</span>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="font-medium">{mentionedQuestions.length}</span>
+                    <span className="font-medium">{overviewMentionedQuestions.length}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">No mencionado</span>
                   <div className="flex items-center gap-2">
                     <XCircle className="h-4 w-4 text-red-500" />
-                    <span className="font-medium">{notMentionedQuestions.length}</span>
+                    <span className="font-medium">{overviewNotMentionedQuestions.length}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t">
