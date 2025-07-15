@@ -117,6 +117,30 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
   const notMentionedQuestions = questionsForProvider.filter(q => !q.mentioned);
 
   // Datos base para el overview (independientes del proveedor seleccionado)
+  // Si hay multiProviderResults, contar todas las respuestas de todos los proveedores
+  const getTotalResponses = () => {
+    if (analysis.multiProviderResults) {
+      return analysis.multiProviderResults.reduce((total, mpq) => total + mpq.results.length, 0);
+    }
+    return analysis.questions.length;
+  };
+
+  const getTotalMentioned = () => {
+    if (analysis.multiProviderResults) {
+      return analysis.multiProviderResults.reduce((total, mpq) => 
+        total + mpq.results.filter(r => r.mentioned).length, 0);
+    }
+    return analysis.questions.filter(q => q.mentioned).length;
+  };
+
+  const getTotalNotMentioned = () => {
+    if (analysis.multiProviderResults) {
+      return analysis.multiProviderResults.reduce((total, mpq) => 
+        total + mpq.results.filter(r => !r.mentioned).length, 0);
+    }
+    return analysis.questions.filter(q => !q.mentioned).length;
+  };
+
   const overviewMentionedQuestions = analysis.questions.filter(q => q.mentioned);
   const overviewNotMentionedQuestions = analysis.questions.filter(q => !q.mentioned);
 
@@ -214,7 +238,7 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
             Análisis AEO: {analysis.domain}
           </h1>
           <p className="text-muted-foreground text-sm sm:text-base">
-            Sector: {analysis.sector} • {analysis.questions.length} preguntas analizadas
+            Sector: {analysis.sector} • {getTotalResponses()} respuestas analizadas
           </p>
         </div>
         <Button onClick={onNewAnalysis} className="btn-primary w-full sm:w-auto flex-shrink-0">
@@ -326,19 +350,19 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
                   <span className="text-sm text-muted-foreground">Mencionado</span>
                   <div className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span className="font-medium">{overviewMentionedQuestions.length}</span>
+                    <span className="font-medium">{getTotalMentioned()}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">No mencionado</span>
                   <div className="flex items-center gap-2">
                     <XCircle className="h-4 w-4 text-red-500" />
-                    <span className="font-medium">{overviewNotMentionedQuestions.length}</span>
+                    <span className="font-medium">{getTotalNotMentioned()}</span>
                   </div>
                 </div>
                 <div className="flex items-center justify-between pt-2 border-t">
                   <span className="text-sm font-medium">Total</span>
-                  <span className="font-bold">{analysis.questions.length}</span>
+                  <span className="font-bold">{getTotalResponses()}</span>
                 </div>
               </div>
             </CardContent>
