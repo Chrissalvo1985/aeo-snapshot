@@ -28,15 +28,30 @@ async function validateQueryIntent(message: string): Promise<boolean> {
       messages: [
         {
           role: 'system',
-          content: `Eres un validador que determina si una pregunta está relacionada con análisis AEO (Answer Engine Optimization), SEO, marketing digital, análisis de datos, competencia, visibilidad en motores de respuesta, o análisis de rendimiento web.
+          content: `Determina si una pregunta puede estar relacionada con análisis de datos, negocios, web, marketing o consultoría.
 
-Responde SOLO con "SI" o "NO":
-- SI: si la pregunta está relacionada con análisis, datos, competidores, SEO, AEO, marketing, rendimiento, estadísticas, comparaciones de dominios/sitios web, o temas similares.
-- NO: si la pregunta es sobre cocina, recetas, temas personales, entretenimiento, o cualquier tema no relacionado con análisis de negocio/web.`
+Responde SOLO "SI" o "NO":
+
+SI para preguntas sobre:
+- Análisis, datos, métricas, estadísticas
+- Negocios, empresas, competencia, mercado
+- Web, sitios, dominios, SEO, marketing
+- Rendimiento, visibilidad, posicionamiento
+- Comparaciones, tendencias, insights
+- Preguntas generales que podrían aplicar a análisis de negocio
+- Consultas sobre "cómo", "por qué", "cuál", "qué" en contexto empresarial
+
+NO solo para preguntas claramente no relacionadas:
+- Recetas de cocina, entretenimiento personal
+- Temas muy personales o familiares
+- Ciencia ficción, literatura, arte (sin contexto empresarial)
+- Deportes, música, viajes (sin contexto de negocio)
+
+En caso de duda, responde SI.`
         },
         {
           role: 'user',
-          content: `¿Esta pregunta está relacionada con análisis AEO/SEO/marketing?: "${message}"`
+          content: `Pregunta: "${message}"`
         }
       ],
       max_tokens: 5,
@@ -47,7 +62,7 @@ Responde SOLO con "SI" o "NO":
     return response === 'SI';
   } catch (error) {
     console.error('Error validating intent:', error);
-    return false; // En caso de error, rechazar por seguridad
+    return true; // En caso de error, permitir por defecto
   }
 }
 
