@@ -334,6 +334,33 @@
   overflow: hidden;
 }
 
+/* SearchMetadata smooth animations */
+.search-metadata-enter {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-8px);
+}
+
+.search-metadata-enter-active {
+  opacity: 1;
+  max-height: 200px;
+  transform: translateY(0);
+  transition: all 0.2s ease-out;
+}
+
+.search-metadata-exit {
+  opacity: 1;
+  max-height: 200px;
+  transform: translateY(0);
+}
+
+.search-metadata-exit-active {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-8px);
+  transition: all 0.2s ease-in;
+}
+
 /* Print styles */
 @media print {
   * {

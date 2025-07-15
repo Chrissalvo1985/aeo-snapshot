@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Bot, Send, MessageCircle, Clock, Sparkles, User, ChevronDown, ChevronUp } from 'lucide-react';
+import { Bot, Send, MessageCircle, Clock, Sparkles, User, ChevronDown, ChevronUp, BarChart3, TrendingUp, CheckCircle2, Circle } from 'lucide-react';
 import { AEOAnalysis } from '@/lib/types';
 import { getAnalysesFromLocalStorage } from '@/lib/database';
 import { Button } from '@/components/ui/button';
@@ -20,12 +20,13 @@ interface AIBotProps {
 }
 
 export default function AIBot({ onBackToHistory }: AIBotProps) {
-  const [selectedAnalysis, setSelectedAnalysis] = useState<AEOAnalysis | null>(null);
+  const [selectedAnalyses, setSelectedAnalyses] = useState<AEOAnalysis[]>([]);
   const [analyses, setAnalyses] = useState<AEOAnalysis[]>([]);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showAnalysisSelector, setShowAnalysisSelector] = useState(true);
+  const [isMultiSelectMode, setIsMultiSelectMode] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Cargar análisis al montar el componente
@@ -42,36 +43,63 @@ export default function AIBot({ onBackToHistory }: AIBotProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Mensaje de bienvenida cuando se selecciona un análisis
+  // Mensaje de bienvenida cuando se seleccionan análisis
   useEffect(() => {
-    if (selectedAnalysis && messages.length === 0) {
+    if (selectedAnalyses.length > 0 && messages.length === 0) {
+      // Solo mostrar que está listo, sin mensaje automático estructurado
       const welcomeMessage: Message = {
         id: 'welcome',
         role: 'assistant',
-        content: `¡Hola! Soy tu asistente de análisis AEO. He cargado el análisis de "${selectedAnalysis.domain}" del sector ${selectedAnalysis.sector}. 
-
-Puedo ayudarte a:
-• Analizar los resultados de visibilidad (${selectedAnalysis.visibilityScore}%)
-• Explorar insights de las ${selectedAnalysis.questions.length} preguntas evaluadas
-• Revisar las sugerencias de optimización
-• Comparar con la competencia
-• Identificar oportunidades de mejora
-
-¿En qué te gustaría que profundice?`,
+        content: selectedAnalyses.length === 1 
+          ? `Hola! Ya tengo cargado el análisis de ${selectedAnalyses[0].domain}. ¿Qué te gustaría saber?`
+          : `Hola! Tengo ${selectedAnalyses.length} análisis listos para comparar. ¿Qué quieres que analicemos?`,
         timestamp: new Date()
       };
       setMessages([welcomeMessage]);
     }
-  }, [selectedAnalysis]);
+  }, [selectedAnalyses]);
 
   const handleSelectAnalysis = (analysis: AEOAnalysis) => {
-    setSelectedAnalysis(analysis);
-    setMessages([]);
-    setShowAnalysisSelector(false);
+    if (isMultiSelectMode) {
+      setSelectedAnalyses(prev => {
+        const isSelected = prev.some(a => a.id === analysis.id);
+        if (isSelected) {
+          return prev.filter(a => a.id !== analysis.id);
+        } else {
+          return [...prev, analysis];
+        }
+      });
+    } else {
+      setSelectedAnalyses([analysis]);
+      setMessages([]);
+      setShowAnalysisSelector(false);
+    }
+  };
+
+  const handleConfirmMultiSelection = () => {
+    if (selectedAnalyses.length > 0) {
+      setMessages([]);
+      setShowAnalysisSelector(false);
+    }
+  };
+
+  const handleToggleMultiSelectMode = () => {
+    setIsMultiSelectMode(!isMultiSelectMode);
+    if (!isMultiSelectMode) {
+      // Al activar modo multi-selección, mantener solo el primer análisis si hay alguno seleccionado
+      if (selectedAnalyses.length > 1) {
+        setSelectedAnalyses([selectedAnalyses[0]]);
+      }
+    } else {
+      // Al desactivar modo multi-selección, mantener solo el primer análisis
+      if (selectedAnalyses.length > 1) {
+        setSelectedAnalyses([selectedAnalyses[0]]);
+      }
+    }
   };
 
   const handleSendMessage = async () => {
-    if (!inputMessage.trim() || !selectedAnalysis || isLoading) return;
+    if (!inputMessage.trim() || selectedAnalyses.length === 0 || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -92,7 +120,7 @@ Puedo ayudarte a:
         },
         body: JSON.stringify({
           message: inputMessage,
-          analysis: selectedAnalysis,
+          analyses: selectedAnalyses, // Cambio: enviar array de análisis
           conversationHistory: messages
         }),
       });
@@ -226,12 +254,21 @@ Puedo ayudarte a:
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center space-x-3">
           <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500 to-purple-500">
-            <Bot className="h-6 w-6 text-white" />
+            {selectedAnalyses.length > 1 ? (
+              <BarChart3 className="h-6 w-6 text-white" />
+            ) : (
+              <Bot className="h-6 w-6 text-white" />
+            )}
           </div>
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold">Asistente AEO</h1>
+            <h1 className="text-xl sm:text-2xl font-bold">
+              {selectedAnalyses.length > 1 ? 'Análisis Comparativo AEO' : 'Asistente AEO'}
+            </h1>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">
-              Conversa con tus análisis para obtener insights profundos
+              {selectedAnalyses.length > 1 
+                ? 'Analiza estadísticas y compara múltiples análisis'
+                : 'Conversa con tus análisis para obtener insights profundos'
+              }
             </p>
           </div>
         </div>
@@ -245,23 +282,38 @@ Puedo ayudarte a:
       </div>
 
       {/* Selector de análisis */}
-      {(!selectedAnalysis || showAnalysisSelector) && (
+      {(selectedAnalyses.length === 0 || showAnalysisSelector) && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <MessageCircle className="h-5 w-5" />
-                <span>Selecciona un análisis</span>
+                <span>
+                  {isMultiSelectMode 
+                    ? `Selecciona análisis (${selectedAnalyses.length} seleccionados)`
+                    : 'Selecciona un análisis'
+                  }
+                </span>
               </div>
-              {selectedAnalysis && (
+              <div className="flex items-center space-x-2">
                 <Button
-                  variant="ghost"
+                  variant={isMultiSelectMode ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setShowAnalysisSelector(false)}
+                  onClick={handleToggleMultiSelectMode}
                 >
-                  <ChevronUp className="h-4 w-4" />
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  {isMultiSelectMode ? 'Modo Comparativo' : 'Modo Individual'}
                 </Button>
-              )}
+                {selectedAnalyses.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowAnalysisSelector(false)}
+                  >
+                    <ChevronUp className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -275,68 +327,118 @@ Puedo ayudarte a:
                 </Button>
               </div>
             ) : (
-              <div className="grid gap-3">
-                {analyses.map((analysis) => (
-                  <div
-                    key={analysis.id}
-                    className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                      selectedAnalysis?.id === analysis.id ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' : ''
-                    }`}
-                    onClick={() => handleSelectAnalysis(analysis)}
-                  >
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-sm truncate">{analysis.domain}</h3>
-                        <div className="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-400 mt-1 flex-wrap">
-                          <span className="truncate">{analysis.sector}</span>
-                          <span className="hidden sm:inline">•</span>
-                          <span>{analysis.questions.length} preguntas</span>
-                          <span className="hidden sm:inline">•</span>
-                          <span>{analysis.visibilityScore}% visibilidad</span>
+              <>
+                <div className="grid gap-3">
+                  {analyses.map((analysis) => {
+                    const isSelected = selectedAnalyses.some(a => a.id === analysis.id);
+                    return (
+                      <div
+                        key={analysis.id}
+                        className={`p-3 sm:p-4 border rounded-lg cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
+                          isSelected ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20' : ''
+                        }`}
+                        onClick={() => handleSelectAnalysis(analysis)}
+                      >
+                        <div className="flex items-start space-x-3">
+                          {isMultiSelectMode && (
+                            <div className="flex-shrink-0 mt-1">
+                              {isSelected ? (
+                                <CheckCircle2 className="h-5 w-5 text-purple-600" />
+                              ) : (
+                                <Circle className="h-5 w-5 text-gray-400" />
+                              )}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-semibold text-sm truncate">{analysis.domain}</h3>
+                                <div className="flex items-center space-x-2 text-xs text-gray-600 dark:text-gray-400 mt-1 flex-wrap">
+                                  <span className="truncate">{analysis.sector}</span>
+                                  <span className="hidden sm:inline">•</span>
+                                  <span>{analysis.questions.length} preguntas</span>
+                                  <span className="hidden sm:inline">•</span>
+                                  <span>{analysis.visibilityScore}% visibilidad</span>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <div className="flex items-center space-x-2 justify-end">
+                                  <Clock className="h-4 w-4 text-gray-400" />
+                                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                                    {new Date(analysis.createdAt).toLocaleDateString()}
+                                  </span>
+                                </div>
+                                <Badge 
+                                  variant={analysis.visibilityScore >= 70 ? 'default' : 
+                                           analysis.visibilityScore >= 40 ? 'secondary' : 'destructive'}
+                                  className="mt-1"
+                                >
+                                  {analysis.visibilityScore >= 70 ? 'Excelente' :
+                                   analysis.visibilityScore >= 40 ? 'Bueno' : 'Necesita mejora'}
+                                </Badge>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="flex items-center space-x-2 justify-end">
-                          <Clock className="h-4 w-4 text-gray-400" />
-                          <span className="text-xs text-gray-600 dark:text-gray-400">
-                            {new Date(analysis.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <Badge 
-                          variant={analysis.visibilityScore >= 70 ? 'default' : 
-                                   analysis.visibilityScore >= 40 ? 'secondary' : 'destructive'}
-                          className="mt-1"
-                        >
-                          {analysis.visibilityScore >= 70 ? 'Excelente' :
-                           analysis.visibilityScore >= 40 ? 'Bueno' : 'Necesita mejora'}
-                        </Badge>
-                      </div>
+                    );
+                  })}
+                </div>
+                
+                {isMultiSelectMode && selectedAnalyses.length > 0 && (
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600 dark:text-gray-400">
+                        {selectedAnalyses.length} análisis seleccionados para comparación
+                      </span>
+                      <Button 
+                        onClick={handleConfirmMultiSelection}
+                        disabled={selectedAnalyses.length === 0}
+                      >
+                        Iniciar Análisis Comparativo
+                      </Button>
                     </div>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             )}
           </CardContent>
         </Card>
       )}
 
       {/* Chat Interface */}
-      {selectedAnalysis && (
+      {selectedAnalyses.length > 0 && (
         <>
-          {/* Info del análisis seleccionado */}
+          {/* Info de los análisis seleccionados */}
           {!showAnalysisSelector && (
             <Card>
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
-                      <Sparkles className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      {selectedAnalyses.length > 1 ? (
+                        <BarChart3 className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      ) : (
+                        <Sparkles className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                      )}
                     </div>
                     <div>
-                      <h3 className="font-semibold">{selectedAnalysis.domain}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        {selectedAnalysis.sector} • {selectedAnalysis.visibilityScore}% visibilidad
-                      </p>
+                      {selectedAnalyses.length === 1 ? (
+                        <>
+                          <h3 className="font-semibold">{selectedAnalyses[0].domain}</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {selectedAnalyses[0].sector} • {selectedAnalyses[0].visibilityScore}% visibilidad
+                          </p>
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="font-semibold">{selectedAnalyses.length} análisis en comparación</h3>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {Math.round(selectedAnalyses.reduce((sum, a) => sum + a.visibilityScore, 0) / selectedAnalyses.length)}% visibilidad promedio • 
+                            {selectedAnalyses.reduce((sum, a) => sum + a.questions.length, 0)} preguntas totales
+                          </p>
+                        </>
+                      )}
                     </div>
                   </div>
                   <Button
@@ -348,6 +450,21 @@ Puedo ayudarte a:
                     Cambiar análisis
                   </Button>
                 </div>
+                
+                {selectedAnalyses.length > 1 && (
+                  <div className="mt-4 pt-4 border-t">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                      {selectedAnalyses.map((analysis) => (
+                        <div key={analysis.id} className="text-xs bg-gray-50 dark:bg-gray-800 p-2 rounded">
+                          <div className="font-medium truncate">{analysis.domain}</div>
+                          <div className="text-gray-600 dark:text-gray-400">
+                            {analysis.sector} • {analysis.visibilityScore}%
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -373,7 +490,11 @@ Puedo ayudarte a:
                           {message.role === 'user' ? (
                             <User className="h-4 w-4 mt-0.5" />
                           ) : (
-                            <Bot className="h-4 w-4 mt-0.5" />
+                            selectedAnalyses.length > 1 ? (
+                              <BarChart3 className="h-4 w-4 mt-0.5" />
+                            ) : (
+                              <Bot className="h-4 w-4 mt-0.5" />
+                            )
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -398,7 +519,11 @@ Puedo ayudarte a:
                   <div className="flex justify-start">
                     <div className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg">
                       <div className="flex items-center space-x-2">
-                        <Bot className="h-4 w-4" />
+                        {selectedAnalyses.length > 1 ? (
+                          <BarChart3 className="h-4 w-4" />
+                        ) : (
+                          <Bot className="h-4 w-4" />
+                        )}
                         <div className="flex space-x-1">
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
                           <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce delay-100" />
@@ -423,7 +548,11 @@ Puedo ayudarte a:
                     value={inputMessage}
                     onChange={(e) => setInputMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Pregunta sobre tu análisis AEO..."
+                    placeholder={
+                      selectedAnalyses.length > 1 
+                        ? "Pregunta estadísticas comparativas: ¿cuál tiene mejor rendimiento?, ¿qué sectores destacan?, etc..."
+                        : "Pregunta sobre tu análisis AEO..."
+                    }
                     className="w-full px-3 sm:px-4 py-2 border rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent bg-background text-sm sm:text-base"
                     rows={3}
                     disabled={isLoading}

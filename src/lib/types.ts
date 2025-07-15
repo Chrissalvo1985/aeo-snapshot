@@ -5,6 +5,8 @@ export interface AEOQuestion {
   position: number | null;
   sentiment: 'positive' | 'negative' | 'neutral';
   response: string;
+  searchCriteria?: string[]; // Términos de búsqueda utilizados por el bot
+  sources?: string[]; // URLs de las fuentes consultadas
 }
 
 export interface CompetitorMention {
@@ -44,6 +46,8 @@ export interface ProviderResult {
   sentiment: 'positive' | 'negative' | 'neutral';
   response: string;
   analysis_notes?: string;
+  searchCriteria: string[]; // Términos de búsqueda utilizados por el bot
+  sources: string[]; // URLs de las fuentes consultadas
 }
 
 export interface MultiProviderQuestion {

@@ -21,6 +21,10 @@ import {
   Zap,
   ChevronLeft,
   ChevronRight,
+  Search,
+  ChevronDown,
+  Hash,
+  ExternalLink,
 } from 'lucide-react';
 import { AEOAnalysis, CompetitorMention, AIProvider, MultiProviderQuestion } from '@/lib/types';
 import ProviderComparison from './ProviderComparison';
@@ -30,6 +34,127 @@ interface AEODashboardProps {
   analysis: AEOAnalysis;
   onNewAnalysis: () => void;
 }
+
+// Componente para mostrar metadatos de búsqueda de forma consistente
+const SearchMetadata = ({ 
+  searchCriteria, 
+  sources, 
+  variant = 'default' 
+}: { 
+  searchCriteria?: string[], 
+  sources?: string[], 
+  variant?: 'success' | 'error' | 'default' 
+}) => {
+  const [isMetadataExpanded, setIsMetadataExpanded] = useState(false);
+  
+  const hasMetadata = (searchCriteria?.length || 0) > 0 || (sources?.length || 0) > 0;
+  
+  if (!hasMetadata) return null;
+
+  const getVariantStyles = () => {
+    switch (variant) {
+      case 'success':
+        return {
+          border: 'border-green-200 dark:border-green-700',
+          bg: 'bg-green-50/50 dark:bg-green-900/10',
+          criteriaColor: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 border-green-200 dark:border-green-700',
+          linkColor: 'text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-200',
+          headerColor: 'text-green-700 dark:text-green-300',
+          iconColor: 'text-green-600'
+        };
+      case 'error':
+        return {
+          border: 'border-red-200 dark:border-red-700',
+          bg: 'bg-red-50/50 dark:bg-red-900/10',
+          criteriaColor: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-700',
+          linkColor: 'text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200',
+          headerColor: 'text-red-700 dark:text-red-300',
+          iconColor: 'text-red-600'
+        };
+      default:
+        return {
+          border: 'border-gray-200 dark:border-gray-700',
+          bg: 'bg-gray-50/50 dark:bg-gray-900/10',
+          criteriaColor: 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700',
+          linkColor: 'text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200',
+          headerColor: 'text-gray-700 dark:text-gray-300',
+          iconColor: 'text-gray-600'
+        };
+    }
+  };
+
+  const styles = getVariantStyles();
+
+  return (
+    <div className={`mt-3 border rounded-lg ${styles.border} ${styles.bg} overflow-hidden transition-all duration-200`}>
+      <button
+        onClick={() => setIsMetadataExpanded(!isMetadataExpanded)}
+        className={`w-full px-3 py-2 flex items-center justify-between text-xs font-medium ${styles.headerColor} hover:bg-black/5 dark:hover:bg-white/5 transition-colors`}
+      >
+        <div className="flex items-center gap-2">
+          <Search className={`h-3 w-3 ${styles.iconColor}`} />
+          <span>Información de búsqueda</span>
+          <div className="flex items-center gap-1 text-xs opacity-75">
+            {searchCriteria && searchCriteria.length > 0 && (
+              <span>({searchCriteria.length} criterios)</span>
+            )}
+            {sources && sources.length > 0 && (
+              <span>({sources.length} fuentes)</span>
+            )}
+          </div>
+        </div>
+        <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${isMetadataExpanded ? 'rotate-180' : ''}`} />
+      </button>
+      
+      {isMetadataExpanded && (
+        <div className="px-3 pb-3 space-y-3 border-t border-current/10">
+          {searchCriteria && searchCriteria.length > 0 && (
+            <div>
+              <h6 className={`text-xs font-semibold ${styles.headerColor} mb-2 flex items-center gap-1`}>
+                <Hash className="h-3 w-3" />
+                Criterios de búsqueda utilizados:
+              </h6>
+              <div className="flex flex-wrap gap-1.5">
+                {searchCriteria.map((criteria, idx) => (
+                  <span 
+                    key={idx} 
+                    className={`inline-flex items-center px-2 py-1 text-xs rounded-md border ${styles.criteriaColor} font-medium`}
+                  >
+                    {criteria}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          {sources && sources.length > 0 && (
+            <div>
+              <h6 className={`text-xs font-semibold ${styles.headerColor} mb-2 flex items-center gap-1`}>
+                <ExternalLink className="h-3 w-3" />
+                Fuentes consultadas:
+              </h6>
+              <div className="space-y-1.5 max-h-48 overflow-y-auto">
+                {sources.map((source, idx) => (
+                  <a 
+                    key={idx}
+                    href={source} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className={`group flex items-start gap-2 text-xs ${styles.linkColor} hover:underline p-1.5 rounded transition-colors hover:bg-black/5 dark:hover:bg-white/5`}
+                    title={source}
+                  >
+                    <ExternalLink className="h-3 w-3 mt-0.5 flex-shrink-0 opacity-60 group-hover:opacity-100" />
+                    <span className="break-all line-clamp-2">{source}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardProps) {
   const [activeTab, setActiveTab] = useState<'overview' | 'questions' | 'suggestions' | 'competition' | 'providers'>('overview');
@@ -107,7 +232,9 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
         mentioned: providerResult?.mentioned || false,
         position: providerResult?.position || null,
         sentiment: providerResult?.sentiment || 'neutral',
-        response: providerResult?.response || 'No disponible'
+        response: providerResult?.response || 'No disponible',
+        searchCriteria: providerResult?.searchCriteria || [],
+        sources: providerResult?.sources || []
       };
     });
   };
@@ -590,6 +717,14 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
                           <div className={`${!isExpanded && shouldShowToggle ? 'line-clamp-3' : ''}`}>
                             {formatTextWithReferences(question.response)}
                           </div>
+                          
+                          {/* Metadatos de búsqueda */}
+                          <SearchMetadata 
+                            searchCriteria={question.searchCriteria} 
+                            sources={question.sources}
+                            variant="success"
+                          />
+                          
                           {shouldShowToggle && (
                             <button
                               onClick={() => toggleQuestionExpansion(question.id)}
@@ -647,6 +782,14 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
                         <div className={`${!isExpanded && shouldShowToggle ? 'line-clamp-3' : ''}`}>
                           {formatTextWithReferences(question.response)}
                         </div>
+                        
+                        {/* Metadatos de búsqueda */}
+                        <SearchMetadata 
+                          searchCriteria={question.searchCriteria} 
+                          sources={question.sources}
+                          variant="error"
+                        />
+                        
                         {shouldShowToggle && (
                           <button
                             onClick={() => toggleQuestionExpansion(question.id)}
