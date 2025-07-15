@@ -141,6 +141,7 @@ Puedo ayudarte a:
 
   // Función para formatear texto markdown simple
   const formatBotMessage = (content: string) => {
+    // Formatear el contenido principal
     const lines = content.split('\n');
     const formattedLines: JSX.Element[] = [];
     
@@ -212,7 +213,11 @@ Puedo ayudarte a:
       );
     });
     
-    return <div className="space-y-1">{formattedLines}</div>;
+    return (
+      <div className="space-y-1">
+        {formattedLines}
+      </div>
+    );
   };
 
   return (

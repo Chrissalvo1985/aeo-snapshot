@@ -13,6 +13,8 @@
 - **Análisis AEO Inteligente**: Genera preguntas relevantes para tu sector y analiza cómo te menciona la IA
 - **Dashboard Interactivo**: Visualiza resultados con métricas detalladas y score de visibilidad
 - **Sugerencias Personalizadas**: Recibe recomendaciones específicas para mejorar tu presencia en IA
+- **Referencias Válidas**: Todas las respuestas incluyen fuentes confiables y verificables
+- **Múltiples Proveedores**: Análisis con OpenAI, Claude, Gemini y Perplexity
 - **PWA Ready**: Funciona como aplicación nativa en dispositivos móviles
 - **Interfaz Moderna**: Diseño responsivo con animaciones suaves y UX optimizada
 - **Base de Datos Serverless**: Almacenamiento eficiente con Neon PostgreSQL

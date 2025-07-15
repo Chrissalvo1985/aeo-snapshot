@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AEO Snapshot - Análisis de Visibilidad en IA</title>
+    <meta name="description" content="Herramienta de análisis de visibilidad en motores de respuesta de IA. Analiza tu presencia en ChatGPT, Claude, Gemini y más.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo::before {
+            content: "🎯";
+            margin-right: 0.5rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        .nav-links a:hover {
+            opacity: 0.8;
+        }
+
+        .demo-button {
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 120px 0 80px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><circle cx="500" cy="500" r="400" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="2"/><circle cx="500" cy="500" r="300" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/><circle cx="500" cy="500" r="200" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></svg>') center/cover;
+            opacity: 0.1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero .subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .hero-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 3rem 0;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 3rem;
+            color: #333;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+        }
+
+        .step-number {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+
+        .step h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        /* Technology */
+        .technology {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .tech-item {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s;
+        }
+
+        .tech-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .tech-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tech-item h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Capabilities */
+        .capabilities {
+            padding: 80px 0;
+            background: #f8f9fa;
+        }
+
+        .capabilities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .capability-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 4px solid #667eea;
+        }
+
+        .capability-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+
+        .capability-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .capability-features {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .capability-features li {
+            padding: 0.3rem 0;
+            color: #555;
+        }
+
+        .capability-features li::before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        /* Technical Stack */
+        .technical-stack {
+            padding: 80px 0;
+            background: white;
+        }
+
+        .stack-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .stack-category {
+            background: #f8f9fa;
+            padding: 2rem;
+            border-radius: 15px;
+            border-top: 4px solid #667eea;
+        }
+
+        .stack-category h3 {
+            font-size: 1.4rem;
+            color: #333;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .stack-items {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .stack-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            border-left: 3px solid #667eea;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .stack-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .stack-item-name {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 0.3rem;
+        }
+
+        .stack-item-description {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .stack-item-version {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 0.2rem;
+        }
+
+        .architecture-diagram {
+            margin: 2rem 0;
+            padding: 2rem;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .architecture-layers {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .architecture-layer {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            border: 2px solid #667eea;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .architecture-layer h4 {
+            font-size: 0.9rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+
+        .architecture-layer p {
+            font-size: 0.8rem;
+            color: #666;
+        }
+
+        .architecture-arrow {
+            font-size: 1.5rem;
+            color: #667eea;
+        }
+
+        /* Demo Section */
+        .demo-section {
+            padding: 80px 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+        }
+
+        .demo-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .demo-section p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        /* Footer */
+        footer {
+            background: #333;
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            opacity: 0;
+            animation: fadeInUp 1s ease-out forwards;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .architecture-layers {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .architecture-arrow {
+                transform: rotate(90deg);
+                font-size: 1.2rem;
+            }
+
+            .stack-categories {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .stack-category {
+                padding: 1.5rem;
+            }
+        }
+
+        /* Scroll reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.6s ease;
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">AEO Snapshot</div>
+            <ul class="nav-links">
+                <li><a href="#features">Características</a></li>
+                                 <li><a href="#how-it-works">Cómo Funciona</a></li>
+                 <li><a href="#technology">Tecnología</a></li>
+                 <li><a href="#capabilities">Capacidades</a></li>
+                 <li><a href="#technical-stack">Stack Técnico</a></li>
+            </ul>
+            <a href="https://aeo-3jv19pbrm-chris-projects-350fdfeb.vercel.app" class="demo-button">Ver Demo</a>
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>AEO Snapshot</h1>
+                <p class="subtitle">Herramienta de análisis de visibilidad en motores de respuesta de IA como ChatGPT, Claude, Gemini y Perplexity</p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <div class="stat-number">4</div>
+                        <div class="stat-label">Motores de IA</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">5</div>
+                        <div class="stat-label">Métricas Clave</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">2min</div>
+                        <div class="stat-label">Tiempo de Análisis</div>
+                    </div>
+                </div>
+                <a href="https://aeo-3jv19pbrm-chris-projects-350fdfeb.vercel.app" class="demo-button" style="font-size: 1.2rem; padding: 1rem 2rem;">Explorar Herramienta</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features" id="features">
+        <div class="container">
+            <h2 class="section-title reveal">Características Principales</h2>
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🤖</div>
+                    <h3>Análisis Multi-Proveedor</h3>
+                    <p>Evalúa la visibilidad de tu marca en múltiples motores de IA simultáneamente: OpenAI, Claude, Gemini y Perplexity.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">📊</div>
+                    <h3>Métricas Detalladas</h3>
+                    <p>Obtén datos específicos sobre posición, sentimiento y frecuencia de mención en las respuestas generadas.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Análisis Personalizado</h3>
+                    <p>Configura preguntas específicas para tu sector y obtén insights adaptados a tu negocio.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">🏆</div>
+                    <h3>Mapeo Competitivo</h3>
+                    <p>Identifica qué competidores aparecen en las respuestas y analiza el panorama competitivo.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Procesamiento Rápido</h3>
+                    <p>Obtén resultados completos en menos de 2 minutos con procesamiento en tiempo real.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon">📈</div>
+                    <h3>Reportes Comprensivos</h3>
+                    <p>Visualiza datos y tendencias en un dashboard interactivo con gráficos y métricas claras.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+        <div class="container">
+            <h2 class="section-title reveal">Cómo Funciona</h2>
+            <div class="steps">
+                <div class="step reveal">
+                    <div class="step-number">1</div>
+                    <h3>Configuración</h3>
+                    <p>Ingresa los datos de tu marca: nombre, sector, palabras clave y opcionalmente preguntas personalizadas.</p>
+                </div>
+                <div class="step reveal">
+                    <div class="step-number">2</div>
+                    <h3>Análisis</h3>
+                    <p>El sistema consulta múltiples motores de IA y analiza automáticamente las respuestas generadas.</p>
+                </div>
+                <div class="step reveal">
+                    <div class="step-number">3</div>
+                    <h3>Resultados</h3>
+                    <p>Recibe un dashboard completo con métricas, análisis competitivo y recomendaciones específicas.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="technology" id="technology">
+        <div class="container">
+            <h2 class="section-title reveal">Tecnología Integrada</h2>
+            <div class="tech-grid">
+                <div class="tech-item reveal">
+                    <div class="tech-icon">🧠</div>
+                    <h3>OpenAI GPT-4</h3>
+                    <p>Análisis avanzado con el modelo más potente de OpenAI</p>
+                </div>
+                <div class="tech-item reveal">
+                    <div class="tech-icon">🔍</div>
+                    <h3>Claude (Anthropic)</h3>
+                    <p>Procesamiento de lenguaje natural con enfoque en seguridad</p>
+                </div>
+                <div class="tech-item reveal">
+                    <div class="tech-icon">💎</div>
+                    <h3>Gemini (Google)</h3>
+                    <p>Capacidades multimodales para análisis completo</p>
+                </div>
+                <div class="tech-item reveal">
+                    <div class="tech-icon">⚡</div>
+                    <h3>Perplexity</h3>
+                    <p>Motor de búsqueda conversacional de nueva generación</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="capabilities" id="capabilities">
+        <div class="container">
+            <h2 class="section-title reveal">Capacidades del Sistema</h2>
+            <div class="capabilities-grid">
+                <div class="capability-card reveal">
+                    <div class="capability-title">Análisis de Visibilidad</div>
+                    <div class="capability-description">
+                        Evalúa la presencia de tu marca en respuestas de IA
+                    </div>
+                    <ul class="capability-features">
+                        <li>Detección de menciones directas e indirectas</li>
+                        <li>Análisis de posición en las respuestas</li>
+                        <li>Evaluación del contexto de mención</li>
+                        <li>Medición de frecuencia de aparición</li>
+                    </ul>
+                </div>
+                <div class="capability-card reveal">
+                    <div class="capability-title">Análisis de Sentimiento</div>
+                    <div class="capability-description">
+                        Comprende cómo se percibe tu marca en las respuestas
+                    </div>
+                    <ul class="capability-features">
+                        <li>Clasificación positiva, negativa o neutral</li>
+                        <li>Análisis contextual del sentimiento</li>
+                        <li>Identificación de patrones emocionales</li>
+                        <li>Comparación entre proveedores</li>
+                    </ul>
+                </div>
+                <div class="capability-card reveal">
+                    <div class="capability-title">Inteligencia Competitiva</div>
+                    <div class="capability-description">
+                        Mapea el panorama competitivo en respuestas de IA
+                    </div>
+                    <ul class="capability-features">
+                        <li>Identificación automática de competidores</li>
+                        <li>Análisis de market share en menciones</li>
+                        <li>Comparación de posicionamiento</li>
+                        <li>Detección de oportunidades de mercado</li>
+                    </ul>
+                </div>
+                <div class="capability-card reveal">
+                    <div class="capability-title">Generación de Insights</div>
+                    <div class="capability-description">
+                        Proporciona recomendaciones accionables
+                    </div>
+                    <ul class="capability-features">
+                        <li>Sugerencias de optimización de contenido</li>
+                        <li>Identificación de gaps de visibilidad</li>
+                        <li>Estrategias de posicionamiento</li>
+                        <li>Métricas de rendimiento</li>
+                    </ul>
+                                 </div>
+             </div>
+         </div>
+     </section>
+
+     <section class="technical-stack" id="technical-stack">
+         <div class="container">
+             <h2 class="section-title reveal">Stack Técnico</h2>
+             
+             <div class="architecture-diagram reveal">
+                 <h3>Arquitectura del Sistema</h3>
+                 <div class="architecture-layers">
+                     <div class="architecture-layer">
+                         <h4>Frontend</h4>
+                         <p>Next.js + React</p>
+                     </div>
+                     <div class="architecture-arrow">→</div>
+                     <div class="architecture-layer">
+                         <h4>API Layer</h4>
+                         <p>Next.js API Routes</p>
+                     </div>
+                     <div class="architecture-arrow">→</div>
+                     <div class="architecture-layer">
+                         <h4>AI Providers</h4>
+                         <p>OpenAI, Claude, Gemini, Perplexity</p>
+                     </div>
+                     <div class="architecture-arrow">→</div>
+                     <div class="architecture-layer">
+                         <h4>Database</h4>
+                         <p>Neon PostgreSQL</p>
+                     </div>
+                 </div>
+             </div>
+
+             <div class="stack-categories">
+                 <div class="stack-category reveal">
+                     <h3>🎨 Frontend & UI</h3>
+                     <div class="stack-items">
+                         <div class="stack-item">
+                             <div class="stack-item-name">Next.js 14</div>
+                             <div class="stack-item-description">React framework para aplicaciones full-stack con App Router</div>
+                             <div class="stack-item-version">v14.x</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">TypeScript</div>
+                             <div class="stack-item-description">Tipado estático para mayor confiabilidad del código</div>
+                             <div class="stack-item-version">v5.x</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Tailwind CSS</div>
+                             <div class="stack-item-description">Framework de utilidades CSS para diseño responsivo</div>
+                             <div class="stack-item-version">v3.x</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Framer Motion</div>
+                             <div class="stack-item-description">Librería de animaciones para React</div>
+                             <div class="stack-item-version">v11.x</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Shadcn/ui</div>
+                             <div class="stack-item-description">Componentes UI reutilizables basados en Radix UI</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Lucide React</div>
+                             <div class="stack-item-description">Iconos SVG optimizados para React</div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div class="stack-category reveal">
+                     <h3>🤖 AI & APIs</h3>
+                     <div class="stack-items">
+                         <div class="stack-item">
+                             <div class="stack-item-name">OpenAI API</div>
+                             <div class="stack-item-description">GPT-4 Mini para análisis de texto y generación de contenido</div>
+                             <div class="stack-item-version">SDK v4.x</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Claude API</div>
+                             <div class="stack-item-description">Anthropic Claude 3 Haiku para procesamiento de lenguaje natural</div>
+                             <div class="stack-item-version">API v2023-06-01</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Gemini API</div>
+                             <div class="stack-item-description">Google Gemini 1.5 Flash para análisis multimodal</div>
+                             <div class="stack-item-version">v1beta</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Perplexity API</div>
+                             <div class="stack-item-description">Motor de búsqueda conversacional para análisis contextual</div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div class="stack-category reveal">
+                     <h3>💾 Backend & Data</h3>
+                     <div class="stack-items">
+                         <div class="stack-item">
+                             <div class="stack-item-name">Next.js API Routes</div>
+                             <div class="stack-item-description">Endpoints serverless para lógica de backend</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Neon PostgreSQL</div>
+                             <div class="stack-item-description">Base de datos serverless para almacenamiento de análisis</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">@neondatabase/serverless</div>
+                             <div class="stack-item-description">Driver optimizado para conexiones serverless</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">LocalStorage API</div>
+                             <div class="stack-item-description">Fallback para persistencia local sin base de datos</div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div class="stack-category reveal">
+                     <h3>🚀 Deploy & Tools</h3>
+                     <div class="stack-items">
+                         <div class="stack-item">
+                             <div class="stack-item-name">Vercel</div>
+                             <div class="stack-item-description">Platform de deployment con CDN global y Edge Functions</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">ESLint</div>
+                             <div class="stack-item-description">Linter para mantener calidad del código</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">PostCSS</div>
+                             <div class="stack-item-description">Procesador CSS para optimización y transformaciones</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Git + GitHub</div>
+                             <div class="stack-item-description">Control de versiones y CI/CD integrado</div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div class="stack-category reveal">
+                     <h3>🔧 Utilidades</h3>
+                     <div class="stack-items">
+                         <div class="stack-item">
+                             <div class="stack-item-name">clsx</div>
+                             <div class="stack-item-description">Utilidad para construcción condicional de clases CSS</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">tailwind-merge</div>
+                             <div class="stack-item-description">Merge inteligente de clases de Tailwind CSS</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">React Hooks</div>
+                             <div class="stack-item-description">useState, useEffect, useCallback para manejo de estado</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Web APIs</div>
+                             <div class="stack-item-description">Intersection Observer, Local Storage, Fetch API</div>
+                         </div>
+                     </div>
+                 </div>
+
+                 <div class="stack-category reveal">
+                     <h3>📊 Procesamiento de Datos</h3>
+                     <div class="stack-items">
+                         <div class="stack-item">
+                             <div class="stack-item-name">JSON Processing</div>
+                             <div class="stack-item-description">Parsing y validación de respuestas de múltiples APIs</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Sentiment Analysis</div>
+                             <div class="stack-item-description">Análisis de sentimiento integrado en cada proveedor de IA</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Competitive Intelligence</div>
+                             <div class="stack-item-description">Algoritmos de detección y análisis de competidores</div>
+                         </div>
+                         <div class="stack-item">
+                             <div class="stack-item-name">Parallel Processing</div>
+                             <div class="stack-item-description">Consultas simultáneas a múltiples APIs para optimización</div>
+                         </div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+     </section>
+
+     <section class="demo-section">
+        <div class="container">
+            <h2>Explora AEO Snapshot</h2>
+            <p>Descubre cómo tu marca aparece en los motores de respuesta de IA</p>
+            <a href="https://aeo-3jv19pbrm-chris-projects-350fdfeb.vercel.app" class="demo-button" style="font-size: 1.2rem; padding: 1rem 2rem;">Acceder a la Herramienta</a>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 AEO Snapshot. Herramienta de análisis de visibilidad en IA.</p>
+            <p>Comprende y optimiza tu presencia en los motores de respuesta del futuro</p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Scroll reveal animation
+        function revealElements() {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            reveals.forEach(reveal => {
+                const windowHeight = window.innerHeight;
+                const elementTop = reveal.getBoundingClientRect().top;
+                const elementVisible = 150;
+                
+                if (elementTop < windowHeight - elementVisible) {
+                    reveal.classList.add('active');
+                }
+            });
+        }
+
+        window.addEventListener('scroll', revealElements);
+        revealElements(); // Initial check
+
+        // Header background on scroll
+        window.addEventListener('scroll', function() {
+            const header = document.querySelector('header');
+            if (window.scrollY > 100) {
+                header.style.background = 'rgba(102, 126, 234, 0.95)';
+            } else {
+                header.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            }
+        });
+
+        // Add interactive elements
+        document.querySelectorAll('.feature-card, .capability-card, .tech-item').forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Stack items have their own hover effect (translateX)
+        document.querySelectorAll('.stack-item').forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(5px) scale(1.02)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0) scale(1)';
+            });
+        });
+
+        // Add counter animation for hero stats
+        function animateCounter(element, target, duration = 2000) {
+            const start = 0;
+            const increment = target / (duration / 16);
+            let current = start;
+            
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = current.toFixed(0);
+            }, 16);
+        }
+
+        // Initialize counter animations when hero is visible
+        const heroObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const statNumbers = document.querySelectorAll('.stat-number');
+                    statNumbers.forEach(stat => {
+                        const text = stat.textContent;
+                        if (text.includes('min')) {
+                            animateCounter(stat, 2);
+                        } else {
+                            animateCounter(stat, parseInt(text));
+                        }
+                    });
+                    heroObserver.unobserve(entry.target);
+                }
+            });
+        });
+
+        heroObserver.observe(document.querySelector('.hero'));
+
+        // Add floating demo button for mobile
+        if (window.innerWidth <= 768) {
+            const fab = document.createElement('div');
+            fab.innerHTML = '<a href="https://aeo-3jv19pbrm-chris-projects-350fdfeb.vercel.app" class="demo-button">Ver Demo</a>';
+            fab.style.position = 'fixed';
+            fab.style.bottom = '20px';
+            fab.style.right = '20px';
+            fab.style.zIndex = '1000';
+            fab.style.borderRadius = '50px';
+            fab.style.boxShadow = '0 4px 20px rgba(0,0,0,0.3)';
+            document.body.appendChild(fab);
+        }
+    </script>
+</body>
+</html> 

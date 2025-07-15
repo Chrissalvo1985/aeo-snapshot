@@ -20,7 +20,7 @@ import {
   ArrowRight,
   Zap,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from 'lucide-react';
 import { AEOAnalysis, CompetitorMention, AIProvider, MultiProviderQuestion } from '@/lib/types';
 import ProviderComparison from './ProviderComparison';
@@ -129,6 +129,15 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
 
   const getTotalPages = (questions: typeof questionsForProvider) => {
     return Math.ceil(questions.length / questionsPerPage);
+  };
+
+  // Función para formatear texto simple
+  const formatTextWithReferences = (text: string) => {
+    return (
+      <div className="text-xs text-muted-foreground leading-relaxed">
+        {text}
+      </div>
+    );
   };
 
   const paginatedMentionedQuestions = getPaginatedQuestions(mentionedQuestions);
@@ -550,20 +559,18 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
                               )}
                             </div>
                           </div>
-                          <div className="text-xs text-muted-foreground">
-                            <div className={`transition-all duration-300 ${!isExpanded && shouldShowToggle ? 'line-clamp-2' : ''}`}>
-                              {question.response}
-                            </div>
-                            {shouldShowToggle && (
-                              <button
-                                onClick={() => toggleQuestionExpansion(question.id)}
-                                className="mt-2 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 text-xs font-medium flex items-center gap-1 transition-all duration-200"
-                              >
-                                <ArrowRight className={`h-3 w-3 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
-                                {isExpanded ? 'Ver menos' : `Ver más`}
-                              </button>
-                            )}
+                          <div className={`${!isExpanded && shouldShowToggle ? 'line-clamp-3' : ''}`}>
+                            {formatTextWithReferences(question.response)}
                           </div>
+                          {shouldShowToggle && (
+                            <button
+                              onClick={() => toggleQuestionExpansion(question.id)}
+                              className="mt-2 text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300 text-xs font-medium flex items-center gap-1 transition-all duration-200"
+                            >
+                              <ArrowRight className={`h-3 w-3 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
+                              {isExpanded ? 'Ver menos' : `Ver más`}
+                            </button>
+                          )}
                         </div>
                       </div>
                     );
@@ -609,20 +616,18 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
                             {getSentimentIcon(question.sentiment)}
                           </Badge>
                         </div>
-                        <div className="text-xs text-muted-foreground">
-                          <div className={`transition-all duration-300 ${!isExpanded && shouldShowToggle ? 'line-clamp-2' : ''}`}>
-                            {question.response}
-                          </div>
-                          {shouldShowToggle && (
-                            <button
-                              onClick={() => toggleQuestionExpansion(question.id)}
-                              className="mt-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-xs font-medium flex items-center gap-1 transition-all duration-200"
-                            >
-                              <ArrowRight className={`h-3 w-3 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
-                              {isExpanded ? 'Ver menos' : `Ver más`}
-                            </button>
-                          )}
+                        <div className={`${!isExpanded && shouldShowToggle ? 'line-clamp-3' : ''}`}>
+                          {formatTextWithReferences(question.response)}
                         </div>
+                        {shouldShowToggle && (
+                          <button
+                            onClick={() => toggleQuestionExpansion(question.id)}
+                            className="mt-2 text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 text-xs font-medium flex items-center gap-1 transition-all duration-200"
+                          >
+                            <ArrowRight className={`h-3 w-3 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''}`} />
+                            {isExpanded ? 'Ver menos' : `Ver más`}
+                          </button>
+                        )}
                       </div>
                     </div>
                   );
@@ -669,9 +674,9 @@ export default function AEODashboard({ analysis, onNewAnalysis }: AEODashboardPr
                         </Badge>
                       </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {suggestion.description}
-                    </p>
+                    <div className="text-sm text-muted-foreground mb-3">
+                      {formatTextWithReferences(suggestion.description)}
+                    </div>
                     {suggestion.impact && (
                       <div className="flex items-center gap-2 text-sm">
                         <ArrowRight className="h-4 w-4 text-primary" />

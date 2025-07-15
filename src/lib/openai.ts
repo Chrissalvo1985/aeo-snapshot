@@ -159,6 +159,8 @@ Genera exactamente 5 preguntas de este tipo para el sector "${sector}".
 
 Responde ÚNICAMENTE con un array JSON de strings, sin explicaciones adicionales.`;
 
+
+
     const response = await client.chat.completions.create({
       model: 'gpt-4o-mini',
       messages: [
@@ -362,6 +364,8 @@ CONSIDERACIONES ESPECIALES:
 - Si la visibilidad es alta (>70%), sugiere estrategias de mantener y expandir
 - Considera las preguntas donde NO aparece la marca como oportunidades principales
 
+IMPORTANTE: Cada sugerencia debe ser específica y práctica, basada en datos reales del análisis.
+
 Responde ÚNICAMENTE con un array JSON de objetos, sin explicaciones adicionales.`;
 
   const response = await client.chat.completions.create({
@@ -469,7 +473,8 @@ IMPORTANTE:
 - No agregues explicaciones antes o después del JSON
 - Asegúrate de cerrar todas las llaves y corchetes
 - Limita la descripción de cada competidor a máximo 100 caracteres
-- Si hay muchos competidores, incluye solo los 20 más relevantes`;
+- Si hay muchos competidores, incluye solo los 20 más relevantes
+- Incluye insights valiosos basados en los datos del análisis competitivo`;
 
   const response = await client.chat.completions.create({
     model: 'gpt-4o-mini',
@@ -530,7 +535,7 @@ IMPORTANTE:
     return competitiveAnalysis;
   } catch (error) {
     console.error('Error parsing competitive analysis:', {
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
       content: content,
       contentLength: content?.length
     });
